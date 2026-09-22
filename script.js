@@ -46,6 +46,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  let currentIndex = 0;
+
   function openLightbox(index) {
     if (!lightbox || !lightboxImage) return;
 
@@ -73,8 +75,6 @@ document.addEventListener('DOMContentLoaded', () => {
     lightboxImage.src = `assets/${encodeURI(galleryImages[currentIndex])}`;
     lightboxImage.alt = `Фото ${currentIndex + 1}`;
   }
-
-  let currentIndex = 0;
 
   if (openGalleryBtn) {
     openGalleryBtn.addEventListener('click', () => openLightbox(0));
@@ -190,10 +190,11 @@ document.addEventListener('DOMContentLoaded', () => {
           body: JSON.stringify(payload)
         });
 
-        const data = await response.json();
+        const contentType = response.headers.get('content-type') || '';
+        const data = contentType.includes('application/json') ? await response.json() : null;
 
-        if (!response.ok || !data.ok) {
-          throw new Error(data.error || 'Ошибка отправки');
+        if (!response.ok || !data || !data.ok) {
+          throw new Error((data && data.error) || `Ошибка сервера (${response.status})`);
         }
 
         if (statusBox) {
@@ -207,7 +208,9 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error(error);
 
         if (statusBox) {
-          statusBox.textContent = 'Не удалось отправить заявку. Попробуйте позже или позвоните по телефону.';
+          statusBox.textContent = error instanceof Error && error.message
+            ? `Не удалось отправить заявку: ${error.message}`
+            : 'Не удалось отправить заявку. Попробуйте позже или позвоните по телефону.';
           statusBox.style.color = '#ff9e9e';
         }
       }

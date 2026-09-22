@@ -4,8 +4,8 @@ import ssl
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib import parse, request
 
-BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "8914109311:AAFkYyvFTRfMW3_iCzJsAnuxRiDdS_NTcrw")
-CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "8976198078")
+BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
+CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -47,6 +47,17 @@ class BookingHandler(BaseHTTPRequestHandler):
             self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
             self.wfile.write(json.dumps({"ok": False, "error": f"Missing required fields: {', '.join(missing)}"}).encode("utf-8"))
+            return
+
+        if not BOT_TOKEN or not CHAT_ID:
+            self.send_response(503)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            self.wfile.write(json.dumps({
+                "ok": False,
+                "error": "Telegram credentials are not configured. Set TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID."
+            }).encode("utf-8"))
             return
 
         text = "\n".join([
