@@ -182,7 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       try {
-        const response = await fetch('/api/booking', {
+        const response = await fetch('/API/Booking', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'

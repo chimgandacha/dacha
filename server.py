@@ -18,7 +18,7 @@ class BookingHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_POST(self):
-        if self.path != "/api/booking":
+        if self.path not in ("/API/Booking", "/api/booking"):
             self.send_response(404)
             self.send_header("Content-Type", "application/json")
             self.send_header("Access-Control-Allow-Origin", "*")
@@ -87,7 +87,7 @@ class BookingHandler(BaseHTTPRequestHandler):
         )
 
         try:
-            context = ssl._create_unverified_context()
+            context = ssl.create_default_context()
             with request.urlopen(req, timeout=15, context=context) as response:
                 response_data = response.read().decode("utf-8")
                 result = json.loads(response_data)
